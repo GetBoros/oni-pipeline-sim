@@ -100,24 +100,32 @@ AMenu_Scene.prototype.Setup_User_Interface = function()
 //------------------------------------------------------------------------------------------------------------
 AMenu_Scene.prototype.Align_User_Interface = function(width, height)
 {
-  let max_allowed_width = 0;
-  let text_scale_factor = 1.0;
+  let ui_scale = 1.0;
+  let reference_width = 800.0;
 
-  // 1.0. Anchor Title Text: Horizontal Center, Top 35% of viewport
-  this.Title_Text.setPosition(width * 0.5, height * 0.35);
+  // 1.0. Sync the WebGL Camera viewport dimensions with the new Canvas size
+  this.cameras.main.setSize(width, height);
 
-  // 2.0. Mathematical Scale Guard: Ensure text width never exceeds 85% of screen width
-  max_allowed_width = width * 0.85;
-  this.Title_Text.setScale(1.0); // Reset scale to read raw width accurately
+  // 2.0. Calculate a uniform UI Scale Factor based on reference width
+  ui_scale = width / reference_width;
 
-  if (this.Title_Text.width > max_allowed_width)
+  // 2.1. Establish clamp bounds to prevent UI from becoming infinitesimally small or oversized
+  if (ui_scale > 1.0)
   {
-    text_scale_factor = max_allowed_width / this.Title_Text.width;
-    this.Title_Text.setScale(text_scale_factor);
+    ui_scale = 1.0;
+  }
+  else if (ui_scale < 0.4)
+  {
+    ui_scale = 0.4;
   }
 
-  // 3.0. Anchor Play Button: Horizontal Center, Bottom 60% of viewport
+  // 3.0. Anchor and scale Title Text: Horizontal Center, Top 35% of viewport
+  this.Title_Text.setPosition(width * 0.5, height * 0.35);
+  this.Title_Text.setScale(ui_scale);
+
+  // 4.0. Anchor and scale Play Button: Horizontal Center, Bottom 60% of viewport
   this.Play_Button.setPosition(width * 0.5, height * 0.6);
+  this.Play_Button.setScale(ui_scale);
 };
 //------------------------------------------------------------------------------------------------------------
 
