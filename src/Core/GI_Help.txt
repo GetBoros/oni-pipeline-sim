@@ -1,0 +1,66 @@
+============================================================================================================
+PHASER 4 / JS CORE ARCHITECTURAL CHEAT SHEET: THE GAME INSTANCE (AsGame_Instance)
+============================================================================================================
+
+1. SYSTEM ARCHITECTURAL MAPPING (UE5 to Phaser 4)
+------------------------------------------------------------------------------------------------------------
+   Unreal Engine 5 Concept               Phaser 4 Engine Concept
+   -----------------------------------   -----------------------------------
+   UGameInstance                         AsGame_Instance (extends Phaser.Game)
+   ULevel / AGameModeBase                Phaser.Scene
+   AActor                                Phaser.GameObjects.GameObject
+   UActorComponent                       Phaser.GameObjects.Components (or Custom ECS)
+   Viewport Client                       Phaser.Scale.ScaleManager
+   Tick / Game Loop                      Main Loop (requestAnimationFrame)
+   Garbage Collector (UObject Tracking)  V8 Garbage Collector (JS Engine Level)
+
+
+2. ARCHITECTURAL ROLE OF Phaser.Game
+------------------------------------------------------------------------------------------------------------
+   The Game instance is the heart of the engine runtime. It is a persistent Singleton that lives for the 
+   entire duration of the application tab lifecycle.
+   
+   Main Responsibilities:
+   * Bootstrapping: Parsing Config (Game_Config.js) and appending the WebGL canvas to the DOM.
+   * Subsystem Drivers: Running the high-performance WebGL Render Pipeline, ScaleManager, SoundManager, 
+     and Global Event Bus.
+   * Frame Tick Coordination: Orchestrating the update cycle of all currently active Scenes.
+
+
+3. THE MEMORY SAFETY CONTRACT: WHAT TO STORE (DO's) & WHAT NOT TO STORE (DONT's)
+------------------------------------------------------------------------------------------------------------
+   JS uses the V8 Garbage Collector (GC). Unlike C++ where you control deallocation via destructors 
+   or smart pointers, in JS you must write code that avoids triggering GC cycles during gameplay to 
+   prevent frame rate micro-stuttering.
+
+   [!] DO STORE inside AsGame_Instance (Persistent Subsystems & State):
+       * Exported WebAssembly (WASM) Simulators: Flat typed arrays and compilation memory blocks.
+       * Persistent Socket Client: Singleton instances of WebSockets or WebRTC connections.
+       * Global Configuration Data: Selected locale maps, localized dictionaries, user-profile settings.
+       * Master Audio Parameters: Global sound mixer state (e.g., Master Volume multipliers).
+
+   [x] NEVER STORE inside AsGame_Instance (Scene-Specific Entities):
+       * References to GameObjects (Sprites, Images, Texts, Tilemaps):
+         Why? When a Phaser.Scene is shut down, Phaser destroys its game objects. If your persistent 
+         AsGame_Instance retains a reference to a Sprite, the V8 engine cannot free its memory. This 
+         creates a severe memory leak (equivalent to a raw pointer reference keeping an object alive).
+       * Camera zoom matrices, UI position offsets, or active scene physics states.
+
+
+4. THE PLATINUM SCALING RULES (RESIZE MODE)
+------------------------------------------------------------------------------------------------------------
+   For performance-driven grid simulations, NEVER use standard FIT scaling. It introduces bilinear 
+   filtering artifacts, blurring your coordinate grids and text.
+
+   * Dynamic Canvas Expansion: Configure the scale mode to Phaser.Scale.RESIZE.
+   * Viewport Bounds Control: Ensure the parent HTML div container occupies exactly 100% of the 
+     screen using CSS viewport units (100vw, 100vh).
+   * Responsive UI Anchor Math:
+     Do not assign absolute coordinates (e.g., x = 400). Query the dynamic bounds inside the resize 
+     event listener:
+       x = screen_width * 0.5 (Horizontal Alignment)
+       y = screen_height * 0.3 (Vertical Alignment)
+   * Font/Scale Clamp Formulas:
+     Always calculate bounding boxes for text on small screens:
+       ScaleFactor = Min(1.0, MaxAllowedWidth / TextRawWidth)
+============================================================================================================
