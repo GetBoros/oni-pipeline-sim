@@ -2,6 +2,11 @@
 import AsGame_Instance from './Core/Game_Instance.js';
 import Game_Config from './Core/Game_Config.js';
 //------------------------------------------------------------------------------------------------------------
+
+
+
+
+//------------------------------------------------------------------------------------------------------------
 document.fonts.ready.then(function()
 {
   const Game_Instance = new AsGame_Instance(Game_Config);

@@ -12,7 +12,7 @@ const Game_Config =
     width: window.innerWidth,
     height: window.innerHeight,
     parent: 'game-container',
-    backgroundColor: '#000000',
+    backgroundColor: '#bb6363',
     scale:
     {
         mode: Phaser.Scale.RESIZE,
