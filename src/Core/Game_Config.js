@@ -1,13 +1,18 @@
 //------------------------------------------------------------------------------------------------------------
 import Phaser from 'phaser';
-import AMenu_Scene from '../Scenes/Menu_Scene.js';
-import AMain_Scene from '../Scenes/Main_Scene.js';
+
+import AScene_Menu from '../Scenes/Scene_Menu.js';
+import AScene_Main from '../Scenes/Scene_Main.js';
+import AScene_HUD from '../Scenes/Scene_HUD.js';
 //------------------------------------------------------------------------------------------------------------
 const Game_Config =
 {// Engine and viewport initialization configurations.
 
     type: Phaser.WEBGL,
+    width: window.innerWidth,
+    height: window.innerHeight,
     parent: 'game-container',
+    backgroundColor: '#000000',
     scale:
     {
         mode: Phaser.Scale.RESIZE,
@@ -18,7 +23,7 @@ const Game_Config =
         target: 24,
         forceSetTimeOut: true
     },
-    scene: [AMenu_Scene, AMain_Scene]
+    scene: [AScene_Main, AScene_Menu, AScene_HUD]
 };
 //------------------------------------------------------------------------------------------------------------
 
