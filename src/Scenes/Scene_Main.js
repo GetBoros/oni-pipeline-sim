@@ -31,11 +31,17 @@ class AScene_Main extends Phaser.Scene
         this.S_Key = null;
         this.D_Key = null;
 
+        // 1.2. Desktop drag variables.
         this.Is_Dragging = false;
         this.Drag_Start_X = 0;
         this.Drag_Start_Y = 0;
         this.Cam_Start_X = 0;
         this.Cam_Start_Y = 0;
+
+        // 1.3. Mobile Pinch-to-Zoom tracking variables.
+        this.Is_Pinching = false;
+        this.Pinch_Start_Dist = 0.0;
+        this.Pinch_Start_Zoom = 1.0;
     }
 }
 //------------------------------------------------------------------------------------------------------------
@@ -70,6 +76,9 @@ AScene_Main.prototype.create = function ()  // Begin play
     this.A_Key = this.input.keyboard.addKey(A);
     this.S_Key = this.input.keyboard.addKey(S);
     this.D_Key = this.input.keyboard.addKey(D);
+
+    // 1.2. CRITICAL: Add active touch pointer for multi-touch (Pinch-to-Zoom).
+    this.input.addPointer(1);
 
     // 2.0. Configure logical map size (128x128 cells).
     map_size = 128;
@@ -106,13 +115,13 @@ AScene_Main.prototype.create = function ()  // Begin play
         this.BG_Map.putTileAt(2, x, x, true, this.Pipe_Layer);
     }
 
+    // 5.0. Attach pointer and scroll listeners.
     this.input.on('wheel', this.On_Wheel_Scroll, this);
-    
-    this.input.mouse.disableContextMenu();  // Disable browser RMB menu
+
+    this.input.mouse.disableContextMenu();
     this.input.on('pointerdown', this.On_Pointer_Down, this);
     this.input.on('pointermove', this.On_Pointer_Move, this);
     this.input.on('pointerup', this.On_Pointer_Up, this);
-
 };
 //------------------------------------------------------------------------------------------------------------
 AScene_Main.prototype.On_Spacebar_Pressed = function (event)
@@ -158,10 +167,19 @@ AScene_Main.prototype.On_HUD_Scene_Ready = function (total_time, delta_time)
 AScene_Main.prototype.update = function (total_time, delta_time)
 {
     let camera_speed = 0;
+    let dist = 0.0;
+    let dx = 0.0;
+    let dy = 0.0;
+    let factor = 0.0;
+    let target_zoom = 0.0;
+    let p1 = null;
+    let p2 = null;
 
     camera_speed = 12; // Speed of camera movement in pixels per frame
+    p1 = this.input.pointer1;
+    p2 = this.input.pointer2;
 
-    // 1.0. Check input states and scroll the world camera viewport.
+    // 1.0. Check desktop WASD input states and scroll the camera viewport.
     if (this.W_Key.isDown)
     {
         this.cameras.main.scrollY -= camera_speed;
@@ -177,6 +195,38 @@ AScene_Main.prototype.update = function (total_time, delta_time)
     if (this.D_Key.isDown)
     {
         this.cameras.main.scrollX += camera_speed;
+    }
+
+    // 2.0. Handle mobile Pinch-to-Zoom logic (Multi-touch).
+    if (p1.isDown && p2.isDown)
+    {
+        // 2.1. Calculate the distance between two active touch pointers.
+        dx = p1.x - p2.x;
+        dy = p1.y - p2.y;
+        dist = Math.sqrt(dx * dx + dy * dy);
+
+        // 2.2. Evaluate gesture phase.
+        if (!this.Is_Pinching)
+        {
+            this.Is_Pinching = true;
+            this.Pinch_Start_Dist = dist;
+            this.Pinch_Start_Zoom = this.cameras.main.zoom;
+        }
+        else
+        {
+            // 2.3. Determine magnification ratio.
+            factor = dist / this.Pinch_Start_Dist;
+            target_zoom = this.Pinch_Start_Zoom * factor;
+
+            // 2.4. Apply limits and execute viewport matrix scaling.
+            target_zoom = Phaser.Math.Clamp(target_zoom, 0.25, 4.0);
+            this.cameras.main.setZoom(target_zoom);
+        }
+    }
+    else
+    {
+        // 2.5. Release pinch gesture lock.
+        this.Is_Pinching = false;
     }
 };
 //------------------------------------------------------------------------------------------------------------
@@ -212,7 +262,6 @@ AScene_Main.prototype.On_Wheel_Scroll = function (pointer, game_objects, delta_x
     camera.setZoom(zoom_new);
 
     // 1.5. CRITICAL: Force immediate recalculation of the camera matrix (lazy evaluation bypass).
-    // This updates the worldView rectangle and forces the GPU projection matrix to recompute now.
     camera.preRender();
 
     // 1.6. Get the new world coordinate under the same screen pointer AFTER the zoom.
