@@ -303,7 +303,7 @@ AScene_Main.prototype.Initialize_Wasm_Simulation = async function ()
     let tile_view = null;
 
     // 2.0. Fetch and instantiate WebAssembly binary stream
-    response = await fetch('/simulation.wasm');
+    response = await fetch(`${import.meta.env.BASE_URL}simulation.wasm`);
     wasm_module = await WebAssembly.instantiateStreaming(response);
     exports = wasm_module.instance.exports;
     this.wasm_instance = wasm_module.instance;
