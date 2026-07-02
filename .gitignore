@@ -7,14 +7,27 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies and build outputs (JS/Vite)
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# C++ / CMake / Clangd build files and caches
+cpp/build/
+cpp/.cache/
+.cache/
+
+# Compiled WebAssembly binary artifacts (generated on F7)
+public/simulation.wasm
+
+# Editor directories and files (Excluding environment settings from ignore)
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+!.vscode/cmake-kits.json
+
 .idea
 .DS_Store
 *.suo

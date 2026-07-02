@@ -1,0 +1,6 @@
+[
+    {
+        "name": "Emscripten",
+        "toolchainFile": "/home/get_boros/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+    }
+]

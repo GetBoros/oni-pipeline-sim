@@ -58,11 +58,7 @@ AScene_Main.prototype.preload = function ()
 //------------------------------------------------------------------------------------------------------------
 AScene_Main.prototype.create = function ()  // Begin play
 {
-    let map_size = 0;
-    let x = 0;
-    let y = 0;
     let key_space = null;
-    let tileset_ref = null;
 
     // 1.0. Launch HUD overlay scene and attach master event listeners.
     this.scene.launch('HUD_Scene');
@@ -77,51 +73,22 @@ AScene_Main.prototype.create = function ()  // Begin play
     this.S_Key = this.input.keyboard.addKey(S);
     this.D_Key = this.input.keyboard.addKey(D);
 
-    // 1.2. CRITICAL: Add active touch pointer for multi-touch (Pinch-to-Zoom).
+    // 1.2. Add active touch pointer for multi-touch (Pinch-to-Zoom).
     this.input.addPointer(1);
 
-    // 2.0. Configure logical map size (128x128 cells).
-    map_size = 128;
-
-    // 2.1. Initialize the logical grid dimensions in the engine.
-    this.BG_Map = this.make.tilemap(
-        {
-            tileWidth: 64,
-            tileHeight: 64,
-            width: map_size,
-            height: map_size
-        });
-
-    // 3.0. Slice the 512x512 texture into a logical Tileset object.
-    tileset_ref = this.BG_Map.addTilesetImage('tileset_name', 'tileset_texture');
-
-    // 3.1. Create layers starting strictly at World coordinates (0, 0).
-    this.BG_Layer = this.BG_Map.createBlankLayer('Ground_Layer', tileset_ref, 0, 0);
-    this.Pipe_Layer = this.BG_Map.createBlankLayer('Plumbing_Layer', tileset_ref, 0, 0);
-    this.Wire_Layer = this.BG_Map.createBlankLayer('Electrical_Layer', tileset_ref, 0, 0);
-
-    // 4.0. Fill the entire 128x128 Background Layer with solid ground (Tile ID = 1).
-    for (y = 0; y < map_size; y++)
-    {
-        for (x = 0; x < map_size; x++)
-        {
-            this.BG_Map.putTileAt(1, x, y, true, this.BG_Layer);
-        }
-    }
-
-    // 4.1. Draw a diagonal pipeline from (0,0) to (127,127) using Tile ID = 2.
-    for (x = 0; x < map_size; x++)
-    {
-        this.BG_Map.putTileAt(2, x, x, true, this.Pipe_Layer);
-    }
-
-    // 5.0. Attach pointer and scroll listeners.
+    // 1.3. Attach pointer and scroll listeners.
     this.input.on('wheel', this.On_Wheel_Scroll, this);
 
     this.input.mouse.disableContextMenu();
     this.input.on('pointerdown', this.On_Pointer_Down, this);
     this.input.on('pointermove', this.On_Pointer_Move, this);
     this.input.on('pointerup', this.On_Pointer_Up, this);
+
+    // 1.4. Attach resize event listener to dynamic viewport recalculation (Orientation change).
+    this.scale.on('resize', this.On_Window_Resize, this);
+
+    // 1.5. ASYNC: Boot up and load our C++ WebAssembly Simulation
+    this.Initialize_Wasm_Simulation();
 };
 //------------------------------------------------------------------------------------------------------------
 AScene_Main.prototype.On_Spacebar_Pressed = function (event)
@@ -162,6 +129,12 @@ AScene_Main.prototype.On_HUD_Scene_Ready = function (total_time, delta_time)
     this.game.events.emit('Main_Scene_Ready');
 
     console.log("Main scene is ready, HUD can now resize UI");
+};
+//------------------------------------------------------------------------------------------------------------
+AScene_Main.prototype.On_Window_Resize = function (game_size)
+{
+    // 1.0. Keep the camera viewport synchronized with the physical scale of the browser container.
+    this.cameras.main.setSize(game_size.width, game_size.height);
 };
 //------------------------------------------------------------------------------------------------------------
 AScene_Main.prototype.update = function (total_time, delta_time)
@@ -291,8 +264,8 @@ AScene_Main.prototype.On_Pointer_Move = function (pointer)
     let dy = 0;
     let zoom_factor = 0.0;
 
-    // 1.0. Process camera panning only if active drag lock is held.
-    if (this.Is_Dragging)
+    // 1.0. Process camera panning only if active drag lock is held AND we are not pinching.
+    if (this.Is_Dragging && !this.Is_Pinching)
     {
         zoom_factor = this.cameras.main.zoom;
 
@@ -313,6 +286,115 @@ AScene_Main.prototype.On_Pointer_Up = function (pointer)
     {
         this.Is_Dragging = false;
     }
+};
+//------------------------------------------------------------------------------------------------------------
+AScene_Main.prototype.Initialize_Wasm_Simulation = async function ()
+{
+    let x = 0;
+    let y = 0;
+    let idx = 0;
+    let tile_id = 0;
+    let map_size = 128;
+    let tile_types_ptr = 0;
+    let response = null;
+    let wasm_module = null;
+    let exports = null;
+    let tileset_ref = null;
+    let tile_view = null;
+
+    // 2.0. Fetch and instantiate WebAssembly binary stream
+    response = await fetch('/simulation.wasm');
+    wasm_module = await WebAssembly.instantiateStreaming(response);
+    exports = wasm_module.instance.exports;
+    this.wasm_instance = wasm_module.instance;
+
+    // 2.1. Initialize the logical grid dimensions in Phaser 4 (ONLY ONCE)
+    this.BG_Map = this.make.tilemap(
+        {
+            tileWidth: 64,
+            tileHeight: 64,
+            width: map_size,
+            height: map_size
+        });
+
+    // 2.2. Slice the 512x512 texture into a logical Tileset object
+    tileset_ref = this.BG_Map.addTilesetImage('tileset_name', 'tileset_texture');
+
+    // 2.3. Create layers starting strictly at World coordinates (0, 0)
+    this.BG_Layer = this.BG_Map.createBlankLayer('Ground_Layer', tileset_ref, 0, 0, map_size, map_size);
+    this.Pipe_Layer = this.BG_Map.createBlankLayer('Plumbing_Layer', tileset_ref, 0, 0, map_size, map_size);
+    this.Wire_Layer = this.BG_Map.createBlankLayer('Electrical_Layer', tileset_ref, 0, 0, map_size, map_size);
+
+    // 3.0. TRIGGER C++ SIMULATION MAP GENERATION
+    this.wasm_instance.exports.Generate_Random_Map();
+
+    // 3.1. Map JS Int32Array directly over the C++ memory block
+    tile_types_ptr = this.wasm_instance.exports.Get_Tile_Types_Ptr();
+    tile_view = new Int32Array(this.wasm_instance.exports.memory.buffer, tile_types_ptr, map_size * map_size);
+
+    // --- ВСТАВЬТЕ ЭТОТ ДИАГНОСТИЧЕСКИЙ БЛОК СЮДА ---
+    let count_1 = 0;
+    let count_2 = 0;
+    let count_3 = 0;
+    let count_other = 0;
+    let i = 0;
+
+    for (i = 0; i < tile_view.length; i++)
+    {
+        if (tile_view[i] === 1)
+        {
+            count_1++;
+        }
+        else if (tile_view[i] === 2)
+        {
+            count_2++;
+        }
+        else if (tile_view[i] === 3)
+        {
+            count_3++;
+        }
+        else
+        {
+            count_other++;
+        }
+    }
+
+    console.log("[DEBUG_WASM] Memory buffer size in bytes:", this.wasm_instance.exports.memory.buffer.byteLength);
+    console.log("[DEBUG_WASM] Pointer from C++:", tile_types_ptr);
+    console.log("[DEBUG_WASM] tile_view array length:", tile_view.length);
+    console.log("[DEBUG_WASM] Earth Tiles (ID 1):", count_1);
+    console.log("[DEBUG_WASM] Pipe Tiles (ID 2):", count_2);
+    console.log("[DEBUG_WASM] Wire Tiles (ID 3):", count_3);
+    console.log("[DEBUG_WASM] Empty/Other (ID 0):", count_other);
+    console.log("[DEBUG_WASM] First 20 elements of the array:", Array.from(tile_view.slice(0, 20)));
+    
+    // 4.0. Draw tiles on Phaser layers based on C++ generated data
+    for (y = 0; y < map_size; ++y)
+    {
+        for (x = 0; x < map_size; ++x)
+        {
+            idx = y * map_size + x;
+            tile_id = tile_view[idx];
+
+            if (tile_id === 1)
+            {
+                // 1 - Solid earth (Background layer)
+                this.BG_Map.putTileAt(1, x, y, true, this.BG_Layer);
+            }
+            else if (tile_id === 2)
+            {
+                // 2 - Plumbing pipe (Pipes layer)
+                this.BG_Map.putTileAt(2, x, y, true, this.Pipe_Layer);
+            }
+            else if (tile_id === 3)
+            {
+                // 3 - Electrical wire (Wires layer)
+                this.BG_Map.putTileAt(3, x, y, true, this.Wire_Layer);
+            }
+        }
+    }
+
+    console.log("[WASM ENGINE] Successfully generated and rendered C++ grid!");
 };
 //------------------------------------------------------------------------------------------------------------
 

@@ -1,0 +1,23 @@
+{
+    "javascript.format.placeOpenBraceOnNewLineForControlBlocks": true,
+    "javascript.format.placeOpenBraceOnNewLineForFunctions": true,
+    "typescript.format.placeOpenBraceOnNewLineForControlBlocks": true,
+    "typescript.format.placeOpenBraceOnNewLineForFunctions": true,
+    "[javascript]": {
+        "editor.formatOnSave": false
+    },
+    "[cpp]": {
+        "editor.formatOnSave": false
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/cpp",
+    "cmake.buildDirectory": "${workspaceFolder}/cpp/build",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "cmake.kit": "Emscripten",
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "/home/get_boros/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+    },
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}/cpp/build",
+        "--query-driver=/home/get_boros/emsdk/upstream/emscripten/em++"
+    ]
+}

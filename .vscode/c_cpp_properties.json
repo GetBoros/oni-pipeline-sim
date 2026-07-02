@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Emscripten-WASM",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${env:HOME}/emsdk/upstream/emscripten/system/include/**"
+            ],
+            "defines": [
+                "__EMSCRIPTEN__"
+            ],
+            "compilerPath": "${env:HOME}/emsdk/upstream/emscripten/em++",
+            "cStandard": "c17",
+            "cppStandard": "c++2c",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}
