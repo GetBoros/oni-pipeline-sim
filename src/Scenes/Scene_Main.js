@@ -225,8 +225,8 @@ AScene_Main.prototype.On_Wheel_Scroll = function (pointer, game_objects, delta_x
 //------------------------------------------------------------------------------------------------------------
 AScene_Main.prototype.On_Pointer_Down = function (pointer)
 {
-    // 1.0. Check if Right Mouse Button (button index 2) was pressed.
-    if (pointer.button === 2)
+    // 1.0. Enable dragging on Mobile touch OR Right-Click (button index 2) on Desktop.
+    if (pointer.wasTouch || pointer.button === 2)
     {
         this.Is_Dragging = true;
         this.Drag_Start_X = pointer.x;
@@ -259,8 +259,8 @@ AScene_Main.prototype.On_Pointer_Move = function (pointer)
 //------------------------------------------------------------------------------------------------------------
 AScene_Main.prototype.On_Pointer_Up = function (pointer)
 {
-    // 1.0. Reset dragging lock on button release.
-    if (pointer.button === 2)
+    // 1.0. Reset dragging lock on button or touch release.
+    if (pointer.wasTouch || pointer.button === 2)
     {
         this.Is_Dragging = false;
     }
