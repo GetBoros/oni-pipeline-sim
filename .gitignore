@@ -19,7 +19,7 @@ cpp/.cache/
 .cache/
 
 # Compiled WebAssembly binary artifacts (generated on F7)
-public/simulation.wasm
+# public/simulation.wasm
 
 # Editor directories and files (Excluding environment settings from ignore)
 .vscode/*
