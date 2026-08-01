@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 
 import AScene_Menu from '../Scenes/Scene_Menu.js';
 import AScene_Main from '../Scenes/Scene_Main.js';
+import AScene_Test from '../Scenes/Scene_Test.js';
 import AScene_HUD from '../Scenes/Scene_HUD.js';
 //------------------------------------------------------------------------------------------------------------
 const Game_Config =
@@ -25,7 +26,7 @@ const Game_Config =
         target: 24,
         forceSetTimeOut: true
     },
-    scene: [AScene_Main, AScene_Menu, AScene_HUD]
+    scene: [AScene_Test, AScene_Main, AScene_Menu, AScene_HUD]
 };
 //------------------------------------------------------------------------------------------------------------
 
