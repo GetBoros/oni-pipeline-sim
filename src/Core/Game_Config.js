@@ -26,6 +26,13 @@ const Game_Config =
         target: 24,
         forceSetTimeOut: true
     },
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: { x: 0, y: 500 },
+            debug: true // Enables rendering of bounding boxes and velocity vectors
+        }
+    },
     scene: [AScene_Test, AScene_Main, AScene_Menu, AScene_HUD]
 };
 //------------------------------------------------------------------------------------------------------------
