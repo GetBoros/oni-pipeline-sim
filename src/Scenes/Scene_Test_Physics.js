@@ -93,7 +93,10 @@ AScene_Test_Physics.prototype.Create_Curve_Tunnel = function()
   // 3.0. Create pure Matter physics body (Matter.js calculates centroid automatically)
   banana_body = this.matter.bodies.fromVertices(world_x, world_y, banana_vertices, {
     isStatic: false,
-    restitution: 0.4
+    restitution: 0.25,  // Low bounciness (realistic soft organic impact)
+    friction: 0.4,  // Realistic skin-to-floor surface friction
+    frictionAir: 0.01,  // Normal atmospheric drag
+    density: 0.02  // Typical organic fruit density
   });
 
   // 4.0. Create sprite and bind existing body (Phaser automatically aligns displayOrigin to body centroid)
