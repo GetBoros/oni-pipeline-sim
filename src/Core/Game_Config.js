@@ -3,8 +3,8 @@ import Phaser from 'phaser';
 
 import AScene_Menu from '../Scenes/Scene_Menu.js';
 import AScene_Main from '../Scenes/Scene_Main.js';
-import AScene_Test from '../Scenes/Scene_Test.js';
 import AScene_HUD from '../Scenes/Scene_HUD.js';
+import AScene_Test_Physics from '../Scenes/Scene_Test_Physics.js';
 //------------------------------------------------------------------------------------------------------------
 const Game_Config =
 {// Engine and viewport initialization configurations.
@@ -33,7 +33,7 @@ const Game_Config =
             debug: true // Enables rendering of bounding boxes and velocity vectors
         }
     },
-    scene: [AScene_Test, AScene_Main, AScene_Menu, AScene_HUD]
+    scene: [AScene_Test_Physics, AScene_Main, AScene_Menu, AScene_HUD]
 };
 //------------------------------------------------------------------------------------------------------------
 
