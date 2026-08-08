@@ -112,7 +112,10 @@ AScene_Test_Physics.prototype.update = function (total_time, delta_time)
 {
   // Reserved for per-frame physics inspection logic.
 
-  // make destroy object and create bigger
+  // make destroy object and create object bigger
+
+  // create simulate life
+  
 };
 //------------------------------------------------------------------------------------------------------------
 
