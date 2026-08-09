@@ -114,7 +114,7 @@ AScene_Test_Physics.prototype.update = function (total_time, delta_time)
 
   // make destroy object and create object bigger
 
-  // create simulate life
+  // create simulate life but not today
   
 };
 //------------------------------------------------------------------------------------------------------------
