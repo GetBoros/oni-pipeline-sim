@@ -97,10 +97,16 @@ AScene_Test_Physics.prototype.create = function ()
   this.Create_Level_Bounds();
   this.Spawn_Banan(window.innerWidth / 2, 200);
 
-  // 2.0. Disable default browser context menu on right click
+  // 1.0. Disable default browser context menu on right click
   this.input.mouse.disableContextMenu();
 
-  // 6.0. Register mouse click input event listener
+  // 2.0. Register and launch parallel UI Overlay Scene dynamically
+  if (this.scene.get('Scene_Portrait_UI') != true)
+    this.scene.add('Scene_Portrait_UI', AScene_Portrait_UI, true);
+  else
+    this.scene.launch('Scene_Portrait_UI');
+
+  // 3.0. Register mouse click input event listener
   this.input.on('pointerdown', (event_click) =>
   { 
     if (event_click.button === 0)  // if LKM - true, other false
@@ -110,12 +116,72 @@ AScene_Test_Physics.prototype.create = function ()
 //------------------------------------------------------------------------------------------------------------
 AScene_Test_Physics.prototype.update = function (total_time, delta_time)
 {
-  // Reserved for per-frame physics inspection logic.
 
-  // make destroy object and create object bigger
+};
+//------------------------------------------------------------------------------------------------------------
 
-  // create simulate life but not today
-  
+
+
+
+//------------------------------------------------------------------------------------------------------------
+// AScene_Portrait_UI
+class AScene_Portrait_UI extends Phaser.Scene
+{// UI overlay scene for player portrait, popups, and HUD controls.
+
+  constructor()
+  {
+    super(
+      {
+        key: 'Scene_Portrait_UI'
+      });
+  }
+}
+//------------------------------------------------------------------------------------------------------------
+AScene_Portrait_UI.prototype.create = function ()
+{
+  let panel_width = 0;
+  let panel_height = 0;
+  let pos_x = 0;
+  let pos_y = 0;
+  let gfx = null;
+  let label_text = null;
+
+  // 1.0. Set fixed HUD dimensions
+  panel_width = 100;
+  panel_height = 100;
+
+  // 2.0. Calculate top-right position with offset
+  pos_x = window.innerWidth - panel_width - 20;
+  pos_y = 20;
+
+  // 3.0. Draw background container and border outline
+  gfx = this.add.graphics();
+
+  // 3.1. Fill background frame (dark grey)
+  gfx.fillStyle(0x222222, 0.95);
+  gfx.fillRect(pos_x, pos_y, panel_width, panel_height);
+
+  // 3.2. Stroke border rectangle with black color
+  gfx.lineStyle(3, 0x000000, 1.0);
+  gfx.strokeRect(pos_x, pos_y, panel_width, panel_height);
+
+  // 4.0. Add inner descriptive text overlay
+  label_text = this.add.text(pos_x + 5, pos_y + 10, 'Эта сцена\nповерх\nдругой сцены',
+    {
+      fontFamily: 'monospace',
+      fontSize: '11px',
+      color: '#00ffcc',
+      align: 'center',
+      wordWrap:
+      {
+        width: panel_width - 10
+      }
+    });
+};
+//------------------------------------------------------------------------------------------------------------
+AScene_Portrait_UI.prototype.update = function (total_time, delta_time)
+{
+
 };
 //------------------------------------------------------------------------------------------------------------
 
