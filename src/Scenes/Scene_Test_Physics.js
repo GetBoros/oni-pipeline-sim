@@ -94,6 +94,10 @@ AScene_Test_Physics.prototype.Spawn_Banan = function(world_x, world_y)
 //------------------------------------------------------------------------------------------------------------
 AScene_Test_Physics.prototype.create = function ()
 {
+  let ui_scene_ptr = null;
+
+  ui_scene_ptr = this.scene.get('Scene_Portrait_UI');
+
   this.Create_Level_Bounds();
   this.Spawn_Banan(window.innerWidth / 2, 200);
 
@@ -101,12 +105,15 @@ AScene_Test_Physics.prototype.create = function ()
   this.input.mouse.disableContextMenu();
 
   // 2.0. Register and launch parallel UI Overlay Scene dynamically
-  if (this.scene.get('Scene_Portrait_UI') != true)
+  if (ui_scene_ptr === null)
     this.scene.add('Scene_Portrait_UI', AScene_Portrait_UI, true);
-  else
+  else if (this.scene.isActive('Scene_Portrait_UI') === false)
     this.scene.launch('Scene_Portrait_UI');
 
-  // 3.0. Register mouse click input event listener
+  // 3.0. Re-order scene render stack so physics world objects render ON TOP of UI scene
+  this.scene.bringToTop('Scene_Test_Physics');
+  
+  // 4.0. Register mouse click input event listener
   this.input.on('pointerdown', (event_click) =>
   { 
     if (event_click.button === 0)  // if LKM - true, other false
