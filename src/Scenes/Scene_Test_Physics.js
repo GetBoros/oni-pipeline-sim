@@ -173,7 +173,7 @@ AScene_Portrait_UI.prototype.create = function ()
   gfx.strokeRect(pos_x, pos_y, panel_width, panel_height);
 
   // 4.0. Add inner descriptive text overlay
-  label_text = this.add.text(pos_x + 5, pos_y + 10, 'Эта сцена\nповерх\nдругой сцены',
+  label_text = this.add.text(pos_x + 5, pos_y + 10, 'This scene\nupper\nother scene',
     {
       fontFamily: 'monospace',
       fontSize: '11px',
