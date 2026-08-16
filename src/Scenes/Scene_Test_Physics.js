@@ -123,7 +123,7 @@ AScene_Test_Physics.prototype.create = function ()
 //------------------------------------------------------------------------------------------------------------
 AScene_Test_Physics.prototype.update = function (total_time, delta_time)
 {
-  // Need refactoring for all file, some day
+  // Need refactoring for all file, some day, maybe tomorrow
 };
 //------------------------------------------------------------------------------------------------------------
 
