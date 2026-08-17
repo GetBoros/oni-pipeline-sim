@@ -6,32 +6,39 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>ONI Pipeline Simulator</title>
+
   <!-- Google Fonts: Bitcount Single -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bitcount+Single:wght@100..900&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      width: 100%;
-      height: 100%;
+    * {
       margin: 0;
       padding: 0;
-      overflow: hidden;
-      background-color: #000000;
-      /* Цвет фона за пределами рендера */
+      box-sizing: border-box;
     }
 
+    html,
+    body,
     #game-container {
       width: 100%;
       height: 100%;
+      overflow: hidden;
       position: absolute;
       top: 0;
       left: 0;
+      background-color: #000000;
+    }
+
+    canvas {
+      display: block;
     }
   </style>
-  <script type="module" crossorigin src="./assets/index-BDCqpNbk.js"></script>
+  <script type="module" crossorigin src="./assets/index-CCuDoBqg.js"></script>
 </head>
 <!----------------------------------------------------------------------------------------------------------->
 
