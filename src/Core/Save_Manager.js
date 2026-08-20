@@ -11,7 +11,7 @@ class SSave_Data
     constructor()
     {
         this.Stage_Game = 'Qi Condensation';
-        this.Cultivation_Progress = 1.25;
+        this.Cultivation_Progress = 1.0;
     }
 }
 //------------------------------------------------------------------------------------------------------------
@@ -29,12 +29,13 @@ class ASave_Manager
 // ASave_Manager
 ASave_Manager.prototype.Save = function(save_data)
 {
-    let serializated_string = '';
+    let serializated_string;
 
     try
     {
         serializated_string = JSON.stringify(save_data);
         localStorage.setItem(this.Storage_Key, serializated_string);
+
         console.log('Save done', json_str);
     }
     catch (error_exception)
