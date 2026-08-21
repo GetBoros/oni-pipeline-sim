@@ -48,7 +48,7 @@ EMSCRIPTEN_KEEPALIVE void Generate_Random_Map()
       if (roll <= 80)
       {
         tile_view[y, x] = 1; // 80% Solid Earth
-      } else if (roll <= 92)
+      } else if (roll <= 92)  //
       {
         tile_view[y, x] = 2; // 12% Plumbing Pipes
       }

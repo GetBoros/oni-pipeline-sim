@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------------------------------------
-import Phaser from "phaser";
+
 //------------------------------------------------------------------------------------------------------------
 
 
@@ -10,6 +10,7 @@ class SSave_Data
 {
     constructor()
     {
+        this.Player_Name = 'Andrey';
         this.Stage_Game = 'Qi Condensation';
         this.Cultivation_Progress = 1.0;
     }
@@ -34,9 +35,9 @@ ASave_Manager.prototype.Save = function(save_data)
     try
     {
         serializated_string = JSON.stringify(save_data);
-        localStorage.setItem(this.Storage_Key, serializated_string);
 
-        console.log('Save done', json_str);
+        localStorage.setItem(this.Storage_Key, serializated_string);
+        console.log('Save done', serializated_string);
     }
     catch (error_exception)
     {
@@ -44,7 +45,7 @@ ASave_Manager.prototype.Save = function(save_data)
     }
 };
 //------------------------------------------------------------------------------------------------------------
-ASave_Manager.prototype.Load = function (default_fallback_data)
+ASave_Manager.prototype.Load = function(default_fallback_data)
 {
     let parsed_data;
     let raw_data_string;
@@ -56,6 +57,7 @@ ASave_Manager.prototype.Load = function (default_fallback_data)
     try
     {
         parsed_data = JSON.parse(raw_data_string);
+
         console.log('[SaveManager] State loaded successfully:', parsed_data);
 
         return parsed_data;
@@ -72,7 +74,6 @@ ASave_Manager.prototype.Load = function (default_fallback_data)
 ASave_Manager.prototype.Clear = function ()
 {
     localStorage.removeItem(this.Storage_Key);
-
     console.log('[SaveManager] Save data cleared.');
 };
 //------------------------------------------------------------------------------------------------------------

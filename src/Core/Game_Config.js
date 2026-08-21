@@ -14,7 +14,7 @@ const Game_Config =
     width: window.innerWidth,
     height: window.innerHeight,
     parent: 'game-container',
-    backgroundColor: '#bb6363',
+    backgroundColor: '#4e4e4e',
     // pixelArt: true,  // Force nearest-neighbor filtering globally (removes tile seams)
     // roundPixels: true,  // Force integer rounding of screen rendering coordinates
     scale:
