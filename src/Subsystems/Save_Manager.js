@@ -11,7 +11,7 @@ class SSave_Data
     constructor()
     {
         this.Player_Name = 'Enter name here';
-        this.Player_Sur_Name = 'Enter sur name here';
+        this.Player_Surname = 'Enter sur name here';
         this.Stage_Game = 'Qi Condensation';
         this.Cultivation_Progress = 1.2;
     }

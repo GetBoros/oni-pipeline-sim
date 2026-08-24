@@ -9,20 +9,20 @@ import Phaser from 'phaser';
 class AText_Input_Container extends Phaser.GameObjects.Container
 {// UI Component managing interactive text input with virtual keyboard support.
 
-    constructor(scene, initial_text, label_text, on_commit_callback)
+    constructor(scene, label_text, initial_text, on_commit_callback)
     {
         super(scene, 100, 100);  // set initial object position but need update
 
         this.Is_Active = false;
         this.Scene_Ref = scene;
         this.Current_Text = initial_text || '';
-        this.Label_String = label_text || 'INPUT:';
+        this.String_Label = label_text || 'INPUT:';
         this.On_Commit_Callback = on_commit_callback;
 
         // Visual Elements
         this.Background_Box = null;
-        this.Label_Text = null;
-        this.Value_Text = null;
+        this.Text_Label = null;
+        this.Text_Input = null;
         this.Box_Width = 320;
         this.Box_Height = 60;
 
@@ -31,7 +31,7 @@ class AText_Input_Container extends Phaser.GameObjects.Container
 
         // 1.0. Initialize component systems
         this.Create_Visuals();
-        this.Create_Hidden_Input();
+        this.Create_Hidden_Input();  // Need for phones to create keyboard input
         this.Bind_Input_Events();
 
         // 2.0. Add container to scene hierarchy
@@ -59,20 +59,20 @@ AText_Input_Container.prototype.Create_Visuals = function()
     this.add(this.Background_Box);
 
     // 2.0. Draw title label
-    this.Label_Text = this.Scene_Ref.add.text(-half_width + 15, -half_height + 8, this.Label_String, {
+    this.Text_Label = this.Scene_Ref.add.text(-half_width + 14, -half_height + 8, this.String_Label, {
         fontFamily: 'monospace',
         fontSize: '12px',  // description text font size
         color: '#88aacc'  // description text color
     });
-    this.add(this.Label_Text);  // create and add
+    this.add(this.Text_Label);  // create and add
 
     // 3.0. Draw input value text
-    this.Value_Text = this.Scene_Ref.add.text(-half_width + 15, -half_height + 26, this.Current_Text, {
+    this.Text_Input = this.Scene_Ref.add.text(-half_width + 14, -half_height + 26, this.Current_Text, {
         fontFamily: 'monospace',
         fontSize: '20px',
         color: '#ffffff'
     });
-    this.add(this.Value_Text);
+    this.add(this.Text_Input);
 };
 //------------------------------------------------------------------------------------------------------------
 AText_Input_Container.prototype.Redraw_Background = function(is_focused)
@@ -120,7 +120,7 @@ AText_Input_Container.prototype.Bind_Input_Events = function()
     this.Hidden_Input.addEventListener('input', (event)=>
     {
         this.Current_Text = event.target.value;
-        this.Value_Text.setText(this.Current_Text);
+        this.Text_Input.setText(this.Current_Text);
     });
 
     // 3.0. Commit on Enter key
@@ -141,7 +141,7 @@ AText_Input_Container.prototype.Bind_Input_Events = function()
         if (this.Current_Text.trim() === '')  // if empty name set default name
         {
             this.Current_Text = 'Nameless';  // set default name if no name
-            this.Value_Text.setText(this.Current_Text);  // Update text to default
+            this.Text_Input.setText(this.Current_Text);  // Update text to default
             this.Hidden_Input.value = this.Current_Text;  // Sync hidden DOM input value with the enforced default
         }
 
