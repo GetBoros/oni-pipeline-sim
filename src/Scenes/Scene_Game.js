@@ -5,6 +5,7 @@ import APortrait_Container from '../Containers/Portrait_Container';
 import ADebug_Container from '../Containers/Debug_Container';
 import AText_Input_Container from '../Containers/Text_Input_Container';
 import AProgress_Bar_Container from '../Containers/Progress_Bar_Container';
+import ABorder_Container from '../Containers/Border_Container';
 
 import { SSave_Data, ASave_Manager } from '../Subsystems/Save_Manager';
 //------------------------------------------------------------------------------------------------------------
@@ -24,6 +25,7 @@ class AScene_Game extends Phaser.Scene
         this.Input_Container_Name = null;
         this.Input_Container_Surname = null;
         this.Progress_Bar_Container = null;
+        this.Border_Container = null;
 
         // Systems & State
         this.Save_Manager = null;
@@ -36,7 +38,16 @@ class AScene_Game extends Phaser.Scene
 
 
 // AScene_Game
-AScene_Game.prototype.create = function()
+AScene_Game.prototype.preload = function ()
+{
+    // 1.0. Load and slice the tileset texture into 64x64 pixel frames in GPU memory
+    this.load.spritesheet('tileset', `${import.meta.env.BASE_URL}assets/tileset.png`, {
+        frameWidth: 64,
+        frameHeight: 64
+    });
+};
+//------------------------------------------------------------------------------------------------------------
+AScene_Game.prototype.create = function ()
 {
     this.input.mouse.disableContextMenu();  // Disable RMB context menu
 
@@ -45,6 +56,7 @@ AScene_Game.prototype.create = function()
     this.Player_Data = this.Save_Manager.Load(new SSave_Data() );
 
     // 2.0. Add test containers
+    this.Border_Container = new ABorder_Container(this, 2);
     this.Progress_Bar_Container = new AProgress_Bar_Container(this, 300, 16, 0x11161d, 0x00ffcc);  // #11161d #00ffcc
     this.Portrait_Container = new APortrait_Container(this, 100, 150);  // Create portrait at position
     this.Debug_Container = new ADebug_Container(this, 0, 0);
@@ -82,6 +94,9 @@ AScene_Game.prototype.Update_Layout = function (width, height)
 
     if (this.Progress_Bar_Container !== null)
         this.Progress_Bar_Container.Update_Layout(width / 2, height - 50);
+
+    if (this.Border_Container !== null)
+        this.Border_Container.Update_Layout(width / 2, height / 2);
 
     if (this.Portrait_Container !== null)
         this.Portrait_Container.Update_Layout(padding_x, height / 2);
