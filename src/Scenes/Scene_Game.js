@@ -45,7 +45,7 @@ AScene_Game.prototype.create = function()
     this.Player_Data = this.Save_Manager.Load(new SSave_Data() );
 
     // 2.0. Add test containers
-    this.Progress_Bar_Container = new AProgress_Bar_Container(this, 300, 16, 0x11161d, 0x00ffcc);
+    this.Progress_Bar_Container = new AProgress_Bar_Container(this, 300, 16, 0x11161d, 0x00ffcc);  // #11161d #00ffcc
     this.Portrait_Container = new APortrait_Container(this, 100, 150);  // Create portrait at position
     this.Debug_Container = new ADebug_Container(this, 0, 0);
     this.Input_Container_Name = new AText_Input_Container(this, 'Daoist name:', this.Player_Data.Player_Name, (string)=>
@@ -66,8 +66,8 @@ AScene_Game.prototype.create = function()
     this.scale.on('resize', this.On_Window_Resize, this);
     window.addEventListener('beforeunload', ()=>
     { 
-        this.Save_Manager.Save(this.Player_Data); 
-    } );  // auto save of exit
+        this.Save_Manager.Save(this.Player_Data);  // auto save on exit
+    } );
 };
 //------------------------------------------------------------------------------------------------------------
 AScene_Game.prototype.On_Window_Resize = function(game_size)
@@ -99,19 +99,16 @@ AScene_Game.prototype.Update_Layout = function (width, height)
     }
 };
 //------------------------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------------------------
 AScene_Game.prototype.update = function (time, delta)
 {
-    let test_progress = 0.0;
+    let test_progress;
 
     // 1.0. Calculate test progress ratio over time using sine wave oscillation
     test_progress = (Math.sin(time * 0.002) + 1) / 2;
 
     // 2.0. Update test progress bar state if instance exists
     if (this.Progress_Bar_Container !== null)
-    {
         this.Progress_Bar_Container.Set_Progress(test_progress);
-    }
 };
 //------------------------------------------------------------------------------------------------------------
 
