@@ -7,6 +7,27 @@ import AScene_HUD from '../Scenes/Scene_HUD.js';
 import AScene_Test_Physics from '../Scenes/Scene_Test_Physics.js';
 import AScene_Game from '../Scenes/Scene_Game.js'
 //------------------------------------------------------------------------------------------------------------
+export const SAsset_Config = Object.freeze(
+{// SAsset_Config: Immutable manifest of external assets (paths, keys, and texture slicing metadata).
+
+    TILESET: Object.freeze(
+    {
+        KEY: 'tileset',
+        PATH: `${import.meta.env.BASE_URL}assets/tileset.png`,
+        FRAME_WIDTH: 64,
+        FRAME_HEIGHT: 64
+    } )
+} );
+//------------------------------------------------------------------------------------------------------------
+export const ETile_Frame = Object.freeze(
+{// ETile_Frame: Enum defining frame indices within the tileset spritesheet.
+
+    EMPTY: 0,
+    BROWN: 1,
+    GREEN: 2,
+    GOLD: 3
+});
+//------------------------------------------------------------------------------------------------------------
 const Game_Config =
 {// Engine and viewport initialization configurations.
 

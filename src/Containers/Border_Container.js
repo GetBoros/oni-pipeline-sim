@@ -1,5 +1,7 @@
 //------------------------------------------------------------------------------------------------------------
 import Phaser from "phaser";
+
+import { ETile_Frame, SAsset_Config } from "../Core/Game_Config";
 //------------------------------------------------------------------------------------------------------------
 
 
@@ -8,13 +10,14 @@ import Phaser from "phaser";
 // ABorder_Container
 class ABorder_Container extends Phaser.GameObjects.Container
 {
-    constructor(scene, frame_index)
+    constructor(scene, texture_key, frame_index)
     {
         super(scene, 0, 0);
 
         this.Scene = scene;
 
-        this.Frame_Index = frame_index || 1;  // Default brown frame from tile
+        this.Texture_Key = texture_key || SAsset_Config.TILESET.KEY;
+        this.Frame_Index = frame_index || ETile_Frame.BROWN;  // Default brown frame from tile
         this.Tile_Sprite = null;
 
         this.Init();
@@ -32,7 +35,7 @@ ABorder_Container.prototype.Init = function()
 {
     // this.scene.add.rectangle(this.X_Position, this.Y_Position, 50, 50, 0x00ff80);
 
-    this.Tile_Sprite = this.Scene.add.image(0, 0, 'tileset', this.Frame_Index);  // Create image at local container space (0, 0)
+    this.Tile_Sprite = this.Scene.add.image(0, 0, this.Texture_Key, this.Frame_Index);  // Create image at local container space (0, 0)
     this.add(this.Tile_Sprite);  // Attach sprite to container (child inherits parent transform matrix)
 };
 //------------------------------------------------------------------------------------------------------------

@@ -8,6 +8,7 @@ import AProgress_Bar_Container from '../Containers/Progress_Bar_Container';
 import ABorder_Container from '../Containers/Border_Container';
 
 import { SSave_Data, ASave_Manager } from '../Subsystems/Save_Manager';
+import { ETile_Frame, SAsset_Config } from '../Core/Game_Config';
 //------------------------------------------------------------------------------------------------------------
 
 
@@ -41,10 +42,11 @@ class AScene_Game extends Phaser.Scene
 AScene_Game.prototype.preload = function ()
 {
     // 1.0. Load and slice the tileset texture into 64x64 pixel frames in GPU memory
-    this.load.spritesheet('tileset', `${import.meta.env.BASE_URL}assets/tileset.png`, {
-        frameWidth: 64,
-        frameHeight: 64
-    });
+    this.load.spritesheet(SAsset_Config.TILESET.KEY, SAsset_Config.TILESET.PATH,
+    {
+        frameWidth: SAsset_Config.TILESET.FRAME_WIDTH,
+        frameHeight: SAsset_Config.TILESET.FRAME_HEIGHT
+    } );
 };
 //------------------------------------------------------------------------------------------------------------
 AScene_Game.prototype.create = function ()
@@ -56,7 +58,7 @@ AScene_Game.prototype.create = function ()
     this.Player_Data = this.Save_Manager.Load(new SSave_Data() );
 
     // 2.0. Add test containers
-    this.Border_Container = new ABorder_Container(this, 2);
+    this.Border_Container = new ABorder_Container(this, SAsset_Config.TILESET.KEY, ETile_Frame.GREEN);
     this.Progress_Bar_Container = new AProgress_Bar_Container(this, 300, 16, 0x11161d, 0x00ffcc);  // #11161d #00ffcc
     this.Portrait_Container = new APortrait_Container(this, 100, 150);  // Create portrait at position
     this.Debug_Container = new ADebug_Container(this, 0, 0);
