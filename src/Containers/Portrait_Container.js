@@ -1,5 +1,6 @@
 //------------------------------------------------------------------------------------------------------------
 import Phaser from "phaser";
+
 import AProgress_Bar_Container from './Progress_Bar_Container';
 //------------------------------------------------------------------------------------------------------------
 
@@ -8,7 +9,8 @@ import AProgress_Bar_Container from './Progress_Bar_Container';
 
 //------------------------------------------------------------------------------------------------------------
 class APortrait_Container extends Phaser.GameObjects.Container
-{
+{// !!! Need make refactoring
+
     constructor(scene, x, y)
     {
         super(scene, x, y);
