@@ -76,12 +76,77 @@ AScene_Game.prototype.create = function ()
     // 2.1. Update container possitions
     this.Update_Layout(this.scale.width, this.scale.height);
 
+    // send reguest to server and log to console info
+    this.Request_Login(`${this.Player_Data.Player_Name} ${this.Player_Data.Player_Surname}`, "secret_dao_123");
+
     // 4.0 Events
     this.scale.on('resize', this.On_Window_Resize, this);
     window.addEventListener('beforeunload', ()=>
     { 
         this.Save_Manager.Save(this.Player_Data);  // auto save on exit
     } );
+};
+//------------------------------------------------------------------------------------------------------------
+AScene_Game.prototype.Request_Login = async function(user_name, user_password)
+{
+    let server_url;
+    let payload;
+    let response;
+    let data;
+
+    // 1.0. Setup network configuration
+    server_url = "https://unharmed-encore-accustom.ngrok-free.dev/login";
+    payload = {
+        name: user_name,
+        password: user_password
+    };
+
+    try
+    {
+        // 1.1. Send asynchronous POST request to C++ server
+        response = await fetch(server_url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        // 1.2. Handle HTTP error status codes (4xx, 5xx)
+        if (response.ok === false)
+        {
+            console.log(
+                "%c[SERVER ERROR]%c HTTP Status: " + response.status,
+                "background: #f39c12; color: #000000; font-weight: bold; padding: 3px 7px; border-radius: 3px;",
+                "color: #f39c12; font-weight: bold; margin-left: 8px;"
+            );
+            return;
+        }
+
+        // 1.3. Parse JSON response
+        data = await response.json();
+
+        // 1.4. Handle successful authorization
+        if ((data.status === "success") && (data.token !== undefined))
+        {
+            localStorage.setItem("session_token", data.token);
+
+            console.log(
+                "%c[SERVER ONLINE]%c Logged in successfully! Token: " + data.token,
+                "background: #2ecc71; color: #000000; font-weight: bold; padding: 3px 7px; border-radius: 3px;",
+                "color: #2ecc71; font-weight: bold; margin-left: 8px;"
+            );
+        }
+    }
+    catch (error)
+    {
+        // 1.5. Handle offline / connection refused error
+        console.log(
+            "%c[SERVER OFFLINE]%c C++ Backend is down or unreachable. Please start your C++ server and ngrok!",
+            "background: #e74c3c; color: #ffffff; font-weight: bold; padding: 3px 7px; border-radius: 3px;",
+            "color: #e74c3c; font-weight: bold; margin-left: 8px;"
+        );
+    }
 };
 //------------------------------------------------------------------------------------------------------------
 AScene_Game.prototype.On_Window_Resize = function(game_size)
