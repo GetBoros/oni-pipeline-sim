@@ -6,6 +6,7 @@ import ADebug_Container from '../Containers/Debug_Container';
 import AText_Input_Container from '../Containers/Text_Input_Container';
 import AProgress_Bar_Container from '../Containers/Progress_Bar_Container';
 import ABorder_Container from '../Containers/Border_Container';
+import AVideo_Stream_Container from '../Containers/Video_Stream_Container';
 
 import { SSave_Data, ASave_Manager } from '../Subsystems/Save_Manager';
 import { ETile_Frame, SAsset_Config } from '../Core/Game_Config';
@@ -27,6 +28,7 @@ class AScene_Game extends Phaser.Scene
         this.Input_Container_Surname = null;
         this.Progress_Bar_Container = null;
         this.Border_Container = null;
+        this.Video_Player = null;
 
         // Systems & State
         this.Save_Manager = null;
@@ -72,6 +74,18 @@ AScene_Game.prototype.create = function ()
         this.Player_Data.Player_Surname = string;
         this.Save_Manager.Save(this.Player_Data);
     });
+    
+
+    this.Temp(true);
+    // 2.0. Включаем звук по первому клику пользователя на экран:
+    this.input.on('pointerdown', () =>
+    {
+        if (this.Video_Player !== null)
+        {
+            this.Video_Player.Toggle_Mute();
+        }
+    });
+
 
     // 2.1. Update container possitions
     this.Update_Layout(this.scale.width, this.scale.height);
@@ -85,6 +99,18 @@ AScene_Game.prototype.create = function ()
     { 
         this.Save_Manager.Save(this.Player_Data);  // auto save on exit
     } );
+
+
+
+};
+//------------------------------------------------------------------------------------------------------------
+AScene_Game.prototype.Temp = function (is_fullscreen_live = false)
+{
+    const video_url = "";
+    const audio_url = "";
+
+    this.Video_Player = new AVideo_Stream_Container(this, false); // false = Dual Window Mode
+    this.Video_Player.Play_Dual_Stream(video_url, audio_url);
 };
 //------------------------------------------------------------------------------------------------------------
 AScene_Game.prototype.Request_Login = async function(user_name, user_password)
@@ -158,6 +184,12 @@ AScene_Game.prototype.Update_Layout = function (width, height)
 {
     let padding_x = 30;
     let padding_y = 30;
+
+    if(this.Video_Player !== null)
+    {
+        this.Video_Player.setPosition(width / 2, height / 2);
+        this.Video_Player.Update_Layout();
+    }
 
     if (this.Progress_Bar_Container !== null)
         this.Progress_Bar_Container.Update_Layout(width / 2, height - 50);
