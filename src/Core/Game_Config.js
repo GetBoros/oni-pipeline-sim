@@ -1,10 +1,6 @@
 //------------------------------------------------------------------------------------------------------------
 import Phaser from 'phaser';
 
-import AScene_Menu from '../Scenes/Scene_Menu.js';
-import AScene_Main from '../Scenes/Scene_Main.js';
-import AScene_HUD from '../Scenes/Scene_HUD.js';
-import AScene_Test_Physics from '../Scenes/Scene_Test_Physics.js';
 import AScene_Game from '../Scenes/Scene_Game.js'
 //------------------------------------------------------------------------------------------------------------
 export const SAsset_Config = Object.freeze(
@@ -19,6 +15,13 @@ export const SAsset_Config = Object.freeze(
     } )
 } );
 //------------------------------------------------------------------------------------------------------------
+export const SNetwork_Config = Object.freeze(
+{// SNetwork_Config: Immutable configuration for network subsystem.
+
+    SERVER_URL: import.meta.env.VITE_BACKEND_URL || 'https://unharmed-encore-accustom.ngrok-free.dev',
+    LOGIN_ENDPOINT: '/login'
+} );
+//------------------------------------------------------------------------------------------------------------
 export const ETile_Frame = Object.freeze(
 {// ETile_Frame: Enum defining frame indices within the tileset spritesheet.
 
@@ -26,7 +29,7 @@ export const ETile_Frame = Object.freeze(
     BROWN: 1,
     GREEN: 2,
     GOLD: 3
-});
+} );
 //------------------------------------------------------------------------------------------------------------
 const Game_Config =
 {// Engine and viewport initialization configurations.

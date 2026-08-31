@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------------------------------------
-import Phaser from "phaser";
+import Phaser from 'phaser';
 import Hls from 'hls.js';
 //------------------------------------------------------------------------------------------------------------
 
@@ -18,24 +18,26 @@ class AVideo_Stream_Container extends Phaser.GameObjects.Container
         this.Stream_URL = '';
 
         // Channel Containers
-        this.Live_Channel = null;
-        this.Delay_Channel = null;
+        this.Live_Channel = null;  // Reference to the live video channel
+        this.Delay_Channel = null;  // Reference to the delayed video channel (for replay)
 
         // Subsystem Timers
-        this.Drift_Timer_Event = null;
+        this.Drift_Timer_Event = null;  // Timer event for drift control between live and delayed streams
 
         // HLS Buffer Configuration
-        this.Hls_Config = Object.freeze({
-            backBufferLength: 60,
-            maxBufferLength: 60,
-            maxBufferSize: 150 * 1024 * 1024
-        });
+        this.Hls_Config = Object.freeze(
+            {
+                backBufferLength: 60,  // seconds of video to keep in memory for back buffer
+                maxBufferLength: 60,  // seconds of video to keep in memory for forward buffer
+                maxBufferSize: 150 * 1024 * 1024  // 150 MB max buffer size
+            });
 
         // 2.0. Register container in scene display list
         scene.add.existing(this);
     }
 }
 //------------------------------------------------------------------------------------------------------------
+
 
 
 
@@ -98,7 +100,7 @@ AVideo_Stream_Container.prototype.Create_Channel = function (texture_key, is_del
 
     video_elem = document.createElement('video');
     video_elem.autoplay = true;
-    video_elem.muted = true; // Required by browsers for initial autoplay
+    video_elem.muted = true;
     video_elem.playsInline = true;
     video_elem.crossOrigin = 'anonymous';
 
@@ -131,9 +133,16 @@ AVideo_Stream_Container.prototype.Create_Channel = function (texture_key, is_del
         tex_w = video_elem.videoWidth || 1280;
         tex_h = video_elem.videoHeight || 720;
 
+        // Удаляем старую текстуру из кэша перед созданием новой
+        if (this.Scene_Ref.textures.exists(texture_key))
+        {
+            this.Scene_Ref.textures.remove(texture_key);
+        }
+
+        // 1.0. Создаем чистую динамическую CanvasTexture в TextureManager Phaser
         channel_obj.Canvas_Tex = this.Scene_Ref.textures.createCanvas(texture_key, tex_w, tex_h);
 
-        // 1.0. Instantiate Sprite and text
+        // 2.0. Добавляем спрайт и текст
         channel_obj.Sprite = this.Scene_Ref.add.image(0, 0, texture_key);
         this.add(channel_obj.Sprite);
 
@@ -155,7 +164,7 @@ AVideo_Stream_Container.prototype.Create_Channel = function (texture_key, is_del
         }
         this.add(channel_obj.Label);
 
-        // 2.0. Canvas texture update callback
+        // 3.0. Аппаратный цикл отрисовки через requestVideoFrameCallback (VSync видеокадров)
         const Update_Texture_Frame = () =>
         {
             if (channel_obj.Canvas_Tex !== null && video_elem.readyState >= 2)
@@ -179,7 +188,7 @@ AVideo_Stream_Container.prototype.Create_Channel = function (texture_key, is_del
             this.Scene_Ref.events.on('update', Update_Texture_Frame);
         }
 
-        // 3.0. Immediately adjust layout after sprite creation
+        // 4.0. Обновляем координаты на экране
         this.Update_Layout();
     });
 
@@ -334,6 +343,7 @@ AVideo_Stream_Container.prototype.Stop = function ()
 AVideo_Stream_Container.prototype.destroy = function (from_scene)
 {
     this.Stop();
+
     Phaser.GameObjects.Container.prototype.destroy.call(this, from_scene);
 };
 //------------------------------------------------------------------------------------------------------------

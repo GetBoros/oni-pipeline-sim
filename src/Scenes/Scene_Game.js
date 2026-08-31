@@ -7,9 +7,10 @@ import AText_Input_Container from '../Containers/Text_Input_Container';
 import AProgress_Bar_Container from '../Containers/Progress_Bar_Container';
 import ABorder_Container from '../Containers/Border_Container';
 import AVideo_Stream_Container from '../Containers/Video_Stream_Container';
+import ANetwork_Manager from '../Subsystems/Network_Manager';
 
 import { SSave_Data, ASave_Manager } from '../Subsystems/Save_Manager';
-import { ETile_Frame, SAsset_Config } from '../Core/Game_Config';
+import { ETile_Frame, SAsset_Config, SNetwork_Config } from '../Core/Game_Config';
 //------------------------------------------------------------------------------------------------------------
 
 
@@ -33,6 +34,7 @@ class AScene_Game extends Phaser.Scene
         // Systems & State
         this.Save_Manager = null;
         this.Player_Data = null;
+        this.Network_Manager = null;
     }
 }
 //------------------------------------------------------------------------------------------------------------
@@ -56,6 +58,7 @@ AScene_Game.prototype.create = function ()
     this.input.mouse.disableContextMenu();  // Disable RMB context menu
 
     // 1.0. Initialize save subsystem and load state (BeginPlay equivalent)
+    this.Network_Manager = new ANetwork_Manager(SNetwork_Config.SERVER_URL);
     this.Save_Manager = new ASave_Manager('cultivation_save_data_v1');
     this.Player_Data = this.Save_Manager.Load(new SSave_Data() );
 
@@ -64,6 +67,7 @@ AScene_Game.prototype.create = function ()
     this.Progress_Bar_Container = new AProgress_Bar_Container(this, 300, 16, 0x11161d, 0x00ffcc);  // #11161d #00ffcc
     this.Portrait_Container = new APortrait_Container(this, 100, 150);  // Create portrait at position
     this.Debug_Container = new ADebug_Container(this, 0, 0);
+
     this.Input_Container_Name = new AText_Input_Container(this, 'Daoist name:', this.Player_Data.Player_Name, (string)=>
     {// 
         this.Player_Data.Player_Name = string;
@@ -76,15 +80,7 @@ AScene_Game.prototype.create = function ()
     });
     
 
-    this.Temp(true);
-    // 2.0. Включаем звук по первому клику пользователя на экран:
-    this.input.on('pointerdown', () =>
-    {
-        if (this.Video_Player !== null)
-        {
-            this.Video_Player.Toggle_Mute();
-        }
-    });
+    this.Setup_Video_Stream(false);  // true = Fullscreen Live Mode, false = Dual Window Mode
 
 
     // 2.1. Update container possitions
@@ -99,18 +95,18 @@ AScene_Game.prototype.create = function ()
     { 
         this.Save_Manager.Save(this.Player_Data);  // auto save on exit
     } );
-
-
-
 };
 //------------------------------------------------------------------------------------------------------------
-AScene_Game.prototype.Temp = function (is_fullscreen_live = false)
+AScene_Game.prototype.Setup_Video_Stream = async function(is_fullscreen_live = false)
 {
     const video_url = "";
     const audio_url = "";
 
     this.Video_Player = new AVideo_Stream_Container(this, false); // false = Dual Window Mode
-    this.Video_Player.Play_Dual_Stream(video_url, audio_url);
+    if (is_fullscreen_live === true)
+        this.Video_Player.Play_Dual_Stream(video_url, audio_url);  // true = Fullscreen Live Mode
+    else
+        this.Video_Player.Play(video_url);
 };
 //------------------------------------------------------------------------------------------------------------
 AScene_Game.prototype.Request_Login = async function(user_name, user_password)
