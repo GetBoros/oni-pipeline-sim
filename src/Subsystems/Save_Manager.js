@@ -10,10 +10,9 @@ class SSave_Data
 {
     constructor()
     {
-        this.Player_Name = 'Enter name here';
-        this.Player_Surname = 'Enter sur name here';
-        this.Stage_Game = 'Qi Condensation';
-        this.Cultivation_Progress = 1.2;
+        this.URL_Format_m3u8_video = 'Enter URL format m3u8 video here';
+        this.URL_Format_m3u8_audio = 'Enter URL format m3u8 audio here';
+        this.Video_Delay = 30;
     }
 }
 //------------------------------------------------------------------------------------------------------------

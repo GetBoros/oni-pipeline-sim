@@ -58,36 +58,30 @@ AScene_Game.prototype.create = function ()
     this.input.mouse.disableContextMenu();  // Disable RMB context menu
 
     // 1.0. Initialize save subsystem and load state (BeginPlay equivalent)
+    this.Save_Manager = new ASave_Manager('save_00');  // Initialize save manager with a unique key for local storage
+    this.Player_Data = this.Save_Manager.Load(new SSave_Data() );  // Load player data from local storage
     this.Network_Manager = new ANetwork_Manager(SNetwork_Config.SERVER_URL);
-    this.Save_Manager = new ASave_Manager('cultivation_save_data_v1');
-    this.Player_Data = this.Save_Manager.Load(new SSave_Data() );
 
     // 2.0. Add test containers
+    this.Video_Player = new AVideo_Stream_Container(this, false); // false = Dual Window Mode
+    this.Debug_Container = new ADebug_Container(this);  // Create debug container
     this.Border_Container = new ABorder_Container(this, SAsset_Config.TILESET.KEY, ETile_Frame.GREEN);
+    this.Portrait_Container = new APortrait_Container(this);  // Create portrait container
     this.Progress_Bar_Container = new AProgress_Bar_Container(this, 300, 16, 0x11161d, 0x00ffcc);  // #11161d #00ffcc
-    this.Portrait_Container = new APortrait_Container(this, 100, 150);  // Create portrait at position
-    this.Debug_Container = new ADebug_Container(this, 0, 0);
 
-    this.Input_Container_Name = new AText_Input_Container(this, 'Daoist name:', this.Player_Data.Player_Name, (string)=>
+    this.Input_Container_Video = new AText_Input_Container(this, 'Enter URL format m3u8 video: ', this.Player_Data.URL_Format_m3u8_video, (string)=>
     {// 
-        this.Player_Data.Player_Name = string;
+        this.Player_Data.URL_Format_m3u8_video = string;
         this.Save_Manager.Save(this.Player_Data);
     });
-    this.Input_Container_Surname = new AText_Input_Container(this, 'Daoist surname', this.Player_Data.Player_Surname, (string)=>
+    this.Input_Container_Audio = new AText_Input_Container(this, 'Enter URL format m3u8 audio: ', this.Player_Data.URL_Format_m3u8_audio, (string)=>
     {// 
-        this.Player_Data.Player_Surname = string;
+        this.Player_Data.URL_Format_m3u8_audio = string;
         this.Save_Manager.Save(this.Player_Data);
     });
     
-
-    this.Setup_Video_Stream(false);  // true = Fullscreen Live Mode, false = Dual Window Mode
-
-
     // 2.1. Update container possitions
     this.Update_Layout(this.scale.width, this.scale.height);
-
-    // send reguest to server and log to console info
-    this.Request_Login(`${this.Player_Data.Player_Name} ${this.Player_Data.Player_Surname}`, "secret_dao_123");
 
     // 4.0 Events
     this.scale.on('resize', this.On_Window_Resize, this);
@@ -95,80 +89,6 @@ AScene_Game.prototype.create = function ()
     { 
         this.Save_Manager.Save(this.Player_Data);  // auto save on exit
     } );
-};
-//------------------------------------------------------------------------------------------------------------
-AScene_Game.prototype.Setup_Video_Stream = async function(is_fullscreen_live = false)
-{
-    const video_url = "";
-    const audio_url = "";
-
-    this.Video_Player = new AVideo_Stream_Container(this, false); // false = Dual Window Mode
-    if (is_fullscreen_live === true)
-        this.Video_Player.Play_Dual_Stream(video_url, audio_url);  // true = Fullscreen Live Mode
-    else
-        this.Video_Player.Play(video_url);
-};
-//------------------------------------------------------------------------------------------------------------
-AScene_Game.prototype.Request_Login = async function(user_name, user_password)
-{
-    let server_url;
-    let payload;
-    let response;
-    let data;
-
-    // 1.0. Setup network configuration
-    server_url = "https://unharmed-encore-accustom.ngrok-free.dev/login";
-    payload = {
-        name: user_name,
-        password: user_password
-    };
-
-    try
-    {
-        // 1.1. Send asynchronous POST request to C++ server
-        response = await fetch(server_url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
-        // 1.2. Handle HTTP error status codes (4xx, 5xx)
-        if (response.ok === false)
-        {
-            console.log(
-                "%c[SERVER ERROR]%c HTTP Status: " + response.status,
-                "background: #f39c12; color: #000000; font-weight: bold; padding: 3px 7px; border-radius: 3px;",
-                "color: #f39c12; font-weight: bold; margin-left: 8px;"
-            );
-            return;
-        }
-
-        // 1.3. Parse JSON response
-        data = await response.json();
-
-        // 1.4. Handle successful authorization
-        if ((data.status === "success") && (data.token !== undefined))
-        {
-            localStorage.setItem("session_token", data.token);
-
-            console.log(
-                "%c[SERVER ONLINE]%c Logged in successfully! Token: " + data.token,
-                "background: #2ecc71; color: #000000; font-weight: bold; padding: 3px 7px; border-radius: 3px;",
-                "color: #2ecc71; font-weight: bold; margin-left: 8px;"
-            );
-        }
-    }
-    catch (error)
-    {
-        // 1.5. Handle offline / connection refused error
-        console.log(
-            "%c[SERVER OFFLINE]%c C++ Backend is down or unreachable. Please start your C++ server and ngrok!",
-            "background: #e74c3c; color: #ffffff; font-weight: bold; padding: 3px 7px; border-radius: 3px;",
-            "color: #e74c3c; font-weight: bold; margin-left: 8px;"
-        );
-    }
 };
 //------------------------------------------------------------------------------------------------------------
 AScene_Game.prototype.On_Window_Resize = function(game_size)
@@ -181,28 +101,28 @@ AScene_Game.prototype.Update_Layout = function (width, height)
     let padding_x = 30;
     let padding_y = 30;
 
-    if(this.Video_Player !== null)
+    if(this.Video_Player !== null)  // Update video player position in the middle of the screen
     {
         this.Video_Player.setPosition(width / 2, height / 2);
         this.Video_Player.Update_Layout();
     }
 
-    if (this.Progress_Bar_Container !== null)
+    if (this.Progress_Bar_Container !== null)  // Update progress bar position at the bottom of the screen
         this.Progress_Bar_Container.Update_Layout(width / 2, height - 50);
 
-    if (this.Border_Container !== null)
+    if (this.Border_Container !== null)  // Update border container position in the middle of the screen
         this.Border_Container.Update_Layout(width / 2, height / 2);
 
-    if (this.Portrait_Container !== null)
+    if (this.Portrait_Container !== null)  // Update portrait container position in the middle of the screen
         this.Portrait_Container.Update_Layout(padding_x, height / 2);
 
-    if (this.Input_Container_Name !== null)
-        this.Input_Container_Name.Update_Layout(width / 2, 80);
+    if (this.Input_Container_Video !== null)  // Update video input container position in the middle of the screen
+        this.Input_Container_Video.Update_Layout(width / 2, 80);
 
-    if (this.Input_Container_Surname !== null)
-        this.Input_Container_Surname.Update_Layout(width / 2, 80 * 2);
+    if (this.Input_Container_Audio !== null)  // Update audio input container position below the video input container
+        this.Input_Container_Audio.Update_Layout(width / 2, 80 * 2);
 
-    if (this.Debug_Container !== null)
+    if (this.Debug_Container !== null)  // Update debug container position at the top-right corner of the screen
     {
         this.Debug_Container.Update_Layout(width - padding_x, padding_y);
         this.Debug_Container.Update_Text(width, height);

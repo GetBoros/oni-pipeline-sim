@@ -48,9 +48,11 @@ AText_Input_Container.prototype.Create_Visuals = function()
 {
     let half_width;
     let half_height;
+    let display_string;
 
     half_width = this.Box_Width / 2;
     half_height = this.Box_Height / 2;
+    display_string = this.Format_Display_Text(this.Current_Text, 20);  // Limit display to 20 characters for visual clarity
 
     // 1.0. Create interactive background rectangle (perfect 1:1 hit-box)
     this.Background_Box = this.Scene_Ref.add.rectangle(0, 0, this.Box_Width, this.Box_Height, 0x11161d, 0.95);
@@ -67,7 +69,7 @@ AText_Input_Container.prototype.Create_Visuals = function()
     this.add(this.Text_Label);  // create and add
 
     // 3.0. Draw input value text
-    this.Text_Input = this.Scene_Ref.add.text(-half_width + 14, -half_height + 26, this.Current_Text, {
+    this.Text_Input = this.Scene_Ref.add.text(-half_width + 14, -half_height + 26, display_string, {
         fontFamily: 'monospace',
         fontSize: '20px',
         color: '#ffffff'
@@ -87,12 +89,27 @@ AText_Input_Container.prototype.Redraw_Background = function(is_focused)
     this.Background_Box.setStrokeStyle(2, line_color, 1.0);
 };
 //------------------------------------------------------------------------------------------------------------
+AText_Input_Container.prototype.Format_Display_Text = function(raw_string, max_chars)
+{
+    let text_length = 0;
+    let formatted_text = '';
+
+    text_length = raw_string.length;
+
+    if (text_length > max_chars)
+        formatted_text = '...' + raw_string.substring(text_length - (max_chars - 3) );  // shiw ... and last symb
+    else
+        formatted_text = raw_string;
+
+    return formatted_text;
+};
+//------------------------------------------------------------------------------------------------------------
 AText_Input_Container.prototype.Create_Hidden_Input = function()
 {
     // 1.0. Create hidden native input element in DOM tree
     this.Hidden_Input = document.createElement('input');
     this.Hidden_Input.type = 'text';
-    this.Hidden_Input.maxLength = 18;
+    this.Hidden_Input.maxLength = 2048;  // Set a reasonable maximum length for input
     this.Hidden_Input.value = this.Current_Text;
 
     // 1.1. Style as invisible and off-screen
@@ -119,17 +136,17 @@ AText_Input_Container.prototype.Bind_Input_Events = function()
     // 2.0. Handle real-time text input from keyboard
     this.Hidden_Input.addEventListener('input', (event)=>
     {
+        let display_text = this.Format_Display_Text(event.target.value, 20);  // Limit display to 20 characters for visual clarity
+
         this.Current_Text = event.target.value;
-        this.Text_Input.setText(this.Current_Text);
+        this.Text_Input.setText(display_text);
     });
 
     // 3.0. Commit on Enter key
     this.Hidden_Input.addEventListener('keydown', (event)=>
     {
         if (event.key === 'Enter')
-        {
             this.Hidden_Input.blur();
-        }
     });
 
     // 4.0. Commit data on focus loss (blur)
@@ -140,15 +157,13 @@ AText_Input_Container.prototype.Bind_Input_Events = function()
 
         if (this.Current_Text.trim() === '')  // if empty name set default name
         {
-            this.Current_Text = 'Nameless';  // set default name if no name
+            this.Current_Text = 'Empty';  // set default name if no name
             this.Text_Input.setText(this.Current_Text);  // Update text to default
             this.Hidden_Input.value = this.Current_Text;  // Sync hidden DOM input value with the enforced default
         }
 
         if (this.On_Commit_Callback !== null)  // call callback if was added with param text
-        {
             this.On_Commit_Callback(this.Current_Text);
-        }
     });
 };
 //------------------------------------------------------------------------------------------------------------

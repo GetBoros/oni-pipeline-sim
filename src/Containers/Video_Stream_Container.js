@@ -34,6 +34,7 @@ class AVideo_Stream_Container extends Phaser.GameObjects.Container
 
         // 2.0. Register container in scene display list
         scene.add.existing(this);
+        
     }
 }
 //------------------------------------------------------------------------------------------------------------

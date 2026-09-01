@@ -8,9 +8,9 @@ import Phaser from "phaser";
 //------------------------------------------------------------------------------------------------------------
 class ADebug_Container extends Phaser.GameObjects.Container
 {
-    constructor(scene, x, y)
+    constructor(scene)
     {
-        super(scene, x, y);
+        super(scene, 0, 0);  // set initial object position but need update
 
         scene.add.existing(this);
 
