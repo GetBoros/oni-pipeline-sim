@@ -79,6 +79,7 @@ AVideo_Stream_Container.prototype.Play = function (stream_url)
     if (typeof Hls === 'undefined' || Hls.isSupported() === false)
     {
         console.warn('AVideo_Stream_Container: HLS is not supported.');
+
         return;
     }
 
@@ -121,13 +122,11 @@ AVideo_Stream_Container.prototype.Create_Channel = function (texture_key, is_del
 
     video_elem.addEventListener('loadedmetadata', () =>
     {
-        let tex_w = 0;
-        let tex_h = 0;
+        let tex_w;
+        let tex_h;
 
         if (is_delayed === true)
-        {
             video_elem.currentTime = 0;
-        }
 
         video_elem.play();
 
@@ -136,9 +135,7 @@ AVideo_Stream_Container.prototype.Create_Channel = function (texture_key, is_del
 
         // Удаляем старую текстуру из кэша перед созданием новой
         if (this.Scene_Ref.textures.exists(texture_key))
-        {
             this.Scene_Ref.textures.remove(texture_key);
-        }
 
         // 1.0. Создаем чистую динамическую CanvasTexture в TextureManager Phaser
         channel_obj.Canvas_Tex = this.Scene_Ref.textures.createCanvas(texture_key, tex_w, tex_h);
@@ -175,22 +172,15 @@ AVideo_Stream_Container.prototype.Create_Channel = function (texture_key, is_del
             }
 
             if ('requestVideoFrameCallback' in video_elem)
-            {
                 video_elem.requestVideoFrameCallback(Update_Texture_Frame);
-            }
         };
 
         if ('requestVideoFrameCallback' in video_elem)
-        {
             video_elem.requestVideoFrameCallback(Update_Texture_Frame);
-        }
         else
-        {
             this.Scene_Ref.events.on('update', Update_Texture_Frame);
-        }
 
-        // 4.0. Обновляем координаты на экране
-        this.Update_Layout();
+        this.Update_Layout();  // Update position
     });
 
     return channel_obj;
@@ -209,9 +199,7 @@ AVideo_Stream_Container.prototype.Set_Muted = function (is_muted)
 AVideo_Stream_Container.prototype.Toggle_Mute = function ()
 {
     if (this.Live_Channel !== null && this.Live_Channel.Video_Element !== null)
-    {
         this.Set_Muted(!this.Live_Channel.Video_Element.muted);
-    }
 };
 //------------------------------------------------------------------------------------------------------------
 AVideo_Stream_Container.prototype.Setup_Drift_Controller = function ()
@@ -221,12 +209,10 @@ AVideo_Stream_Container.prototype.Setup_Drift_Controller = function ()
     this.Drift_Timer_Event = this.Scene_Ref.time.addEvent({
         delay: 500,
         loop: true,
-        callback: () =>
+        callback: ()=>
         {
             if (this.Live_Channel === null || this.Delay_Channel === null)
-            {
                 return;
-            }
 
             if (this.Live_Channel.Video_Element.readyState >= 2 && this.Delay_Channel.Video_Element.readyState >= 2)
             {
@@ -236,17 +222,13 @@ AVideo_Stream_Container.prototype.Setup_Drift_Controller = function ()
                 {
                     this.Delay_Channel.Video_Element.playbackRate = 0.75;
                     if (this.Delay_Channel.Label !== null)
-                    {
                         this.Delay_Channel.Label.setText(`⏪ REPLAY (-${current_lag}s Accumulating...)`);
-                    }
                 }
                 else
                 {
                     this.Delay_Channel.Video_Element.playbackRate = 1.0;
                     if (this.Delay_Channel.Label !== null)
-                    {
                         this.Delay_Channel.Label.setText(`⏪ REPLAY (-30s Locked)`);
-                    }
                 }
             }
         }
@@ -268,9 +250,7 @@ AVideo_Stream_Container.prototype.Update_Layout = function ()
         this.Live_Channel.Sprite.setDisplaySize(screen_w, screen_h);
 
         if (this.Live_Channel.Label !== null)
-        {
             this.Live_Channel.Label.setPosition(0, -screen_h / 2 + 30);
-        }
         return;
     }
 
@@ -281,9 +261,7 @@ AVideo_Stream_Container.prototype.Update_Layout = function ()
         this.Live_Channel.Sprite.setDisplaySize(520, 292);
 
         if (this.Live_Channel.Label !== null)
-        {
             this.Live_Channel.Label.setPosition(150, -165);
-        }
     }
 
     if (this.Delay_Channel !== null && this.Delay_Channel.Sprite !== null)
@@ -292,18 +270,14 @@ AVideo_Stream_Container.prototype.Update_Layout = function ()
         this.Delay_Channel.Sprite.setDisplaySize(280, 158);
 
         if (this.Delay_Channel.Label !== null)
-        {
             this.Delay_Channel.Label.setPosition(-270, -95);
-        }
     }
 };
 //------------------------------------------------------------------------------------------------------------
 AVideo_Stream_Container.prototype.Stop_Channel = function (channel_obj)
 {
     if (channel_obj === null)
-    {
         return;
-    }
 
     if (channel_obj.Hls_Instance !== null)
     {
@@ -322,6 +296,7 @@ AVideo_Stream_Container.prototype.Stop_Channel = function (channel_obj)
     if (channel_obj.Canvas_Tex !== null)
     {
         this.Scene_Ref.textures.remove(channel_obj.Texture_Key);
+        
         channel_obj.Canvas_Tex = null;
     }
 };
