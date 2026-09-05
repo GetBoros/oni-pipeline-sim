@@ -43,7 +43,7 @@ class AVideo_Stream_Container extends Phaser.GameObjects.Container
 
 
 // AVideo_Stream_Container
-AVideo_Stream_Container.prototype.Play_Dual_Stream = function (video_url, audio_url)
+AVideo_Stream_Container.prototype.Play_Dual_Stream = function(video_url, audio_url)
 {
     let clean_video_url = '';
     let clean_audio_url = '';
@@ -72,7 +72,7 @@ ${clean_video_url}
     this.Play(blob_master_url);
 };
 //------------------------------------------------------------------------------------------------------------
-AVideo_Stream_Container.prototype.Play = function (stream_url)
+AVideo_Stream_Container.prototype.Play = function(stream_url)
 {
     this.Stream_URL = stream_url || '';
 
@@ -94,7 +94,7 @@ AVideo_Stream_Container.prototype.Play = function (stream_url)
     }
 };
 //------------------------------------------------------------------------------------------------------------
-AVideo_Stream_Container.prototype.Create_Channel = function (texture_key, is_delayed)
+AVideo_Stream_Container.prototype.Create_Channel = function(texture_key, is_delayed)
 {
     let channel_obj = null;
     let video_elem = null;
@@ -186,7 +186,7 @@ AVideo_Stream_Container.prototype.Create_Channel = function (texture_key, is_del
     return channel_obj;
 };
 //------------------------------------------------------------------------------------------------------------
-AVideo_Stream_Container.prototype.Set_Muted = function (is_muted)
+AVideo_Stream_Container.prototype.Set_Muted = function(is_muted)
 {
     if (this.Live_Channel !== null && this.Live_Channel.Video_Element !== null)
     {
@@ -196,13 +196,13 @@ AVideo_Stream_Container.prototype.Set_Muted = function (is_muted)
     }
 };
 //------------------------------------------------------------------------------------------------------------
-AVideo_Stream_Container.prototype.Toggle_Mute = function ()
+AVideo_Stream_Container.prototype.Toggle_Mute = function()
 {
     if (this.Live_Channel !== null && this.Live_Channel.Video_Element !== null)
         this.Set_Muted(!this.Live_Channel.Video_Element.muted);
 };
 //------------------------------------------------------------------------------------------------------------
-AVideo_Stream_Container.prototype.Setup_Drift_Controller = function ()
+AVideo_Stream_Container.prototype.Setup_Drift_Controller = function()
 {
     let current_lag = 0;
 
@@ -235,7 +235,7 @@ AVideo_Stream_Container.prototype.Setup_Drift_Controller = function ()
     });
 };
 //------------------------------------------------------------------------------------------------------------
-AVideo_Stream_Container.prototype.Update_Layout = function ()
+AVideo_Stream_Container.prototype.Update_Layout = function()
 {
     let screen_w = 0;
     let screen_h = 0;
@@ -274,7 +274,7 @@ AVideo_Stream_Container.prototype.Update_Layout = function ()
     }
 };
 //------------------------------------------------------------------------------------------------------------
-AVideo_Stream_Container.prototype.Stop_Channel = function (channel_obj)
+AVideo_Stream_Container.prototype.Stop_Channel = function(channel_obj)
 {
     if (channel_obj === null)
         return;
@@ -301,7 +301,7 @@ AVideo_Stream_Container.prototype.Stop_Channel = function (channel_obj)
     }
 };
 //------------------------------------------------------------------------------------------------------------
-AVideo_Stream_Container.prototype.Stop = function ()
+AVideo_Stream_Container.prototype.Stop = function()
 {
     if (this.Drift_Timer_Event !== null)
     {
@@ -316,7 +316,7 @@ AVideo_Stream_Container.prototype.Stop = function ()
     this.Delay_Channel = null;
 };
 //------------------------------------------------------------------------------------------------------------
-AVideo_Stream_Container.prototype.destroy = function (from_scene)
+AVideo_Stream_Container.prototype.destroy = function(from_scene)
 {
     this.Stop();
 
